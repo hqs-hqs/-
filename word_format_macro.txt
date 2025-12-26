@@ -1,0 +1,110 @@
+' Word文档自动格式化宏
+' 用于毕业设计论文格式调整
+
+Sub FormatGraduationThesis()
+    Dim doc As Document
+    Dim para As Paragraph
+    Dim i As Long
+    
+    Set doc = ActiveDocument
+    
+    Application.ScreenUpdating = False
+    
+    ' 1. 格式化一级标题（# 开头）
+    For Each para In doc.Paragraphs
+        If Left(Trim(para.Range.Text), 2) = "# " And InStr(para.Range.Text, "##") = 0 Then
+            para.Range.Style = "Heading 1"
+            With para.Range.Font
+                .Name = "黑体"
+                .Size = 16  ' 三号
+                .Bold = True
+            End With
+            para.Range.ParagraphFormat.Alignment = wdAlignParagraphCenter
+            para.Range.ParagraphFormat.SpaceBefore = 12
+            para.Range.ParagraphFormat.SpaceAfter = 12
+        End If
+    Next
+    
+    ' 2. 格式化二级标题（## 开头）
+    For Each para In doc.Paragraphs
+        If Left(Trim(para.Range.Text), 3) = "## " And InStr(para.Range.Text, "###") = 0 Then
+            para.Range.Style = "Heading 2"
+            With para.Range.Font
+                .Name = "黑体"
+                .Size = 15  ' 小三号
+                .Bold = True
+            End With
+            para.Range.ParagraphFormat.Alignment = wdAlignParagraphLeft
+            para.Range.ParagraphFormat.SpaceBefore = 12
+            para.Range.ParagraphFormat.SpaceAfter = 12
+        End If
+    Next
+    
+    ' 3. 格式化三级标题（### 开头）
+    For Each para In doc.Paragraphs
+        If Left(Trim(para.Range.Text), 4) = "### " Then
+            para.Range.Style = "Heading 3"
+            With para.Range.Font
+                .Name = "黑体"
+                .Size = 14  ' 四号
+                .Bold = True
+            End With
+            para.Range.ParagraphFormat.Alignment = wdAlignParagraphLeft
+            para.Range.ParagraphFormat.SpaceBefore = 0
+            para.Range.ParagraphFormat.SpaceAfter = 0
+        End If
+    Next
+    
+    ' 4. 格式化正文
+    For Each para In doc.Paragraphs
+        If para.Range.Style <> "Heading 1" And _
+           para.Range.Style <> "Heading 2" And _
+           para.Range.Style <> "Heading 3" And _
+           Left(Trim(para.Range.Text), 1) <> "#" Then
+            With para.Range.Font
+                .Name = "宋体"
+                .Size = 12  ' 小四号
+            End With
+            para.Range.ParagraphFormat.LineSpacingRule = wdLineSpaceExactly
+            para.Range.ParagraphFormat.LineSpacing = 20  ' 20磅
+        End If
+    Next
+    
+    ' 5. 设置页眉
+    If doc.Sections(1).Headers(wdHeaderFooterPrimary).Range.Text = "" Then
+        With doc.Sections(1).Headers(wdHeaderFooterPrimary)
+            .Range.Text = "广州铁路职业技术学院毕业（设计）论文：基于Vue3和Spring Boot的游戏平台设计与实现"
+            With .Range.Font
+                .Name = "楷体"
+                .Size = 9  ' 小五号
+            End With
+            .Range.ParagraphFormat.Alignment = wdAlignParagraphCenter
+        End With
+    End If
+    
+    ' 6. 设置页脚（页码）
+    With doc.Sections(1).Footers(wdHeaderFooterPrimary)
+        .PageNumbers.Add PageNumberAlignment:=wdAlignPageNumberCenter
+        With .Range.Font
+            .Name = "楷体"
+            .Size = 9  ' 小五号
+        End With
+    End With
+    
+    ' 7. 删除Markdown标记（可选）
+    ' 如果需要删除 # 等Markdown标记，取消下面的注释
+    ' doc.Content.Find.Execute FindText:="# ", ReplaceWith:="", Replace:=wdReplaceAll
+    ' doc.Content.Find.Execute FindText:="## ", ReplaceWith:="", Replace:=wdReplaceAll
+    ' doc.Content.Find.Execute FindText:="### ", ReplaceWith:="", Replace:=wdReplaceAll
+    
+    Application.ScreenUpdating = True
+    
+    MsgBox "格式化完成！", vbInformation, "提示"
+End Sub
+
+' 使用方法：
+' 1. 在Word中按 Alt+F11 打开VBA编辑器
+' 2. 插入 → 模块
+' 3. 粘贴此代码
+' 4. 按 F5 运行，或关闭编辑器后按 Alt+F8 选择宏运行
+
